@@ -6,6 +6,8 @@ import (
 	"os"
 
 	"github.com/aprimr/event-ticketing-api/db"
+	"github.com/aprimr/event-ticketing-api/handlers"
+	"github.com/aprimr/event-ticketing-api/utils"
 	"github.com/joho/godotenv"
 )
 
@@ -21,6 +23,17 @@ func main() {
 	db.ConnectDB()
 
 	// routes
+	mux.HandleFunc("/events", func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		// POST /events (add event)
+		case http.MethodPost:
+			handlers.HandleAddEvent(w, r)
+
+		// Handle default case
+		default:
+			utils.SendErrorResposnse(w, "Method not allowed", http.StatusMethodNotAllowed)
+		}
+	})
 
 	// SpinUp server
 	port := ":" + os.Getenv("PORT")
