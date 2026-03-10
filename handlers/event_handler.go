@@ -61,5 +61,5 @@ func HandleAddEvent(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Send Success response
-	utils.SendSuccessResposnse(w, "Event created successfully", event, http.StatusCreated)
+	utils.SendSuccessResposnse(w, "Event created successfully", nil, http.StatusCreated)
 }
