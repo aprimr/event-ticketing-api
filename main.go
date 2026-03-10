@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/aprimr/event-ticketing-api/db"
 	"github.com/joho/godotenv"
 )
 
@@ -15,6 +16,11 @@ func main() {
 		log.Fatal("Error loading env")
 	}
 	mux := http.NewServeMux()
+
+	// Connect to db
+	db.ConnectDB()
+
+	// routes
 
 	// SpinUp server
 	port := ":" + os.Getenv("PORT")
