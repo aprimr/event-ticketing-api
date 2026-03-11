@@ -11,13 +11,13 @@ import (
 	"github.com/aprimr/event-ticketing-api/utils"
 )
 
-func HandleAddEvent(w http.ResponseWriter, r *http.Request) {
+func AddEventHandler(w http.ResponseWriter, r *http.Request) {
 	event := models.Event{}
 
 	// Decode JSON
 	err := json.NewDecoder(r.Body).Decode(&event)
 	if err != nil {
-		log.Printf("HandleAddEvent-> JSON error: %v", err)
+		log.Printf("AddEventHandler -> JSON error: %v", err)
 		utils.SendErrorResposnse(w, "Error decoding JSON", http.StatusBadRequest)
 		return
 	}
@@ -55,7 +55,7 @@ func HandleAddEvent(w http.ResponseWriter, r *http.Request) {
 	// Call AddEvent
 	err = repository.AddEvent(r.Context(), event)
 	if err != nil {
-		log.Printf("HandleAddEvent-> db error: %v", err)
+		log.Printf("AddEventHandler -> db error: %v", err)
 		utils.SendErrorResposnse(w, "Error creating event", http.StatusInternalServerError)
 		return
 	}

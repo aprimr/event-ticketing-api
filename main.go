@@ -27,7 +27,7 @@ func main() {
 		switch r.Method {
 		// POST /events (add event)
 		case http.MethodPost:
-			handlers.HandleAddEvent(w, r)
+			handlers.AddEventHandler(w, r)
 
 		// Handle default case
 		default:
