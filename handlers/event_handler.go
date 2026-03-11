@@ -109,3 +109,34 @@ func FetchEventByIdHandler(w http.ResponseWriter, r *http.Request) {
 
 	utils.SendSuccessResposnse(w, "Event fetched successfully", event, http.StatusOK)
 }
+
+func UpdateEventByIdHandler(w http.ResponseWriter, r *http.Request) {
+	// Parse URL
+	idStr := strings.TrimPrefix(r.URL.Path, "/events/")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		log.Printf("UpdateEventHandler -> bad request: %v \n", err)
+		utils.SendErrorResposnse(w, "Event ID must be a number", http.StatusBadRequest)
+		return
+	}
+
+	// Parse JSON
+	updatedData := models.Event{}
+	err = json.NewDecoder(r.Body).Decode(&updatedData)
+	if err != nil {
+		log.Printf("UpdateEventHandler -> JSON error: %v \n", err)
+		utils.SendErrorResposnse(w, "Invalid JSON", http.StatusBadRequest)
+		return
+	}
+
+	// Call UpdateEvent
+	updatedEvent, err := repository.UpdateEventById(r.Context(), id, updatedData)
+	if err != nil {
+		log.Printf("UpdateEventHandler -> db error: %v \n", err)
+		utils.SendErrorResposnse(w, "Error updating event", http.StatusInternalServerError)
+		return
+	}
+
+	utils.SendSuccessResposnse(w, "Event updated successfully", updatedEvent, http.StatusOK)
+
+}

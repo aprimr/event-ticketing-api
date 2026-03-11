@@ -41,9 +41,13 @@ func main() {
 
 	mux.HandleFunc("/events/", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
-		// GET //:id (fetch event by id)
+		// GET /events/:id (fetch event by id)
 		case http.MethodGet:
 			handlers.FetchEventByIdHandler(w, r)
+
+		// PUT /events/:id (update event by id)
+		case http.MethodPut:
+			handlers.UpdateEventByIdHandler(w, r)
 
 		// Handle default case
 		default:

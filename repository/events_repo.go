@@ -92,3 +92,18 @@ func FetchEventById(ctx context.Context, id int) (*models.Event, error) {
 	}
 	return &event, nil
 }
+
+func UpdateEventById(ctx context.Context, id int, event models.Event) (*models.Event, error) {
+	// Store updated event
+	updatedEvent := models.Event{}
+
+	row := db.Pool.QueryRow(ctx, "UPDATE events SET title=$1, description=$2, location=$3, category=$4, capacity=$5, price=$6, event_date=$7 WHERE id=$8 RETURNING id, title, description, location, category, capacity, price, event_date, created_at", event.Title, event.Description, event.Location, event.Category, event.Capacity, event.Price, event.EventDate, id)
+	err := row.Scan(&updatedEvent.Id, &updatedEvent.Title, &updatedEvent.Description, &updatedEvent.Location, &updatedEvent.Category, &updatedEvent.Capacity, &updatedEvent.Price, &updatedEvent.EventDate, &updatedEvent.CreatedAt)
+	if err == pgx.ErrNoRows {
+		return nil, fmt.Errorf("No events matched with provided id")
+	}
+	if err != nil {
+		return nil, err
+	}
+	return &updatedEvent, nil
+}
