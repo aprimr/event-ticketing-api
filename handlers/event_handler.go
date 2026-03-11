@@ -17,7 +17,7 @@ func AddEventHandler(w http.ResponseWriter, r *http.Request) {
 	// Decode JSON
 	err := json.NewDecoder(r.Body).Decode(&event)
 	if err != nil {
-		log.Printf("AddEventHandler -> JSON error: %v", err)
+		log.Printf("AddEventHandler -> JSON error: %v \n", err)
 		utils.SendErrorResposnse(w, "Error decoding JSON", http.StatusBadRequest)
 		return
 	}
@@ -47,19 +47,41 @@ func AddEventHandler(w http.ResponseWriter, r *http.Request) {
 		utils.SendErrorResposnse(w, "Price is required", http.StatusBadRequest)
 		return
 	}
-	if strings.TrimSpace(event.EventDate) == "" {
-		utils.SendErrorResposnse(w, "Event date is required", http.StatusBadRequest)
-		return
-	}
 
 	// Call AddEvent
 	err = repository.AddEvent(r.Context(), event)
 	if err != nil {
-		log.Printf("AddEventHandler -> db error: %v", err)
+		log.Printf("AddEventHandler -> db error: %v \n", err)
 		utils.SendErrorResposnse(w, "Error creating event", http.StatusInternalServerError)
 		return
 	}
 
 	// Send Success response
 	utils.SendSuccessResposnse(w, "Event created successfully", nil, http.StatusCreated)
+}
+
+func FetchEventsHandler(w http.ResponseWriter, r *http.Request) {
+	// Parse URL query
+	page := utils.ParseQueryInt(r, "page", 1)
+	limit := utils.ParseQueryInt(r, "limit", 10)
+
+	// Validate
+	if page <= 0 {
+		utils.SendErrorResposnse(w, "Page cannot be less than zero", http.StatusBadRequest)
+		return
+	}
+	if limit <= 0 || limit >= 200 {
+		utils.SendErrorResposnse(w, "Limit cannot be less than zero or more than 200", http.StatusBadRequest)
+		return
+	}
+
+	// Call FetchEvents
+	events, err := repository.FetchEvents(r.Context(), page, limit)
+	if err != nil {
+		log.Printf("FetchEventHandler -> db error: %v \n", err)
+		utils.SendErrorResposnse(w, "Error fetching events", http.StatusInternalServerError)
+		return
+	}
+
+	utils.SendSuccessResposnse(w, "Events fetched successfully", events, http.StatusOK)
 }

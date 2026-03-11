@@ -13,7 +13,7 @@ func AddEvent(ctx context.Context, event models.Event) error {
 	return err
 }
 
-func FetchEvents(ctx context.Context, limit int, page int) (*models.PaginatedEvent, error) {
+func FetchEvents(ctx context.Context, page int, limit int) (*models.PaginatedEvent, error) {
 	// Calculate offset
 	offset := (page - 1) * limit
 

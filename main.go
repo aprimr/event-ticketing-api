@@ -29,6 +29,10 @@ func main() {
 		case http.MethodPost:
 			handlers.AddEventHandler(w, r)
 
+		// GET /events?page=1&limit=5 (fetch events)
+		case http.MethodGet:
+			handlers.FetchEventsHandler(w, r)
+
 		// Handle default case
 		default:
 			utils.SendErrorResposnse(w, "Method not allowed", http.StatusMethodNotAllowed)
