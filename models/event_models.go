@@ -11,3 +11,11 @@ type Event struct {
 	EventDate   string  `json:"event_date"`
 	CreatedAt   string  `json:"created_at"`
 }
+
+type PaginatedEvent struct {
+	Events     []Event `json:"events"`
+	Page       int     `json:"page"`
+	Limit      int     `json:"limit"`
+	TotalCount int     `json:"total_count"`
+	TotalPages int     `json:"total_pages"`
+}
