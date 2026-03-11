@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/aprimr/event-ticketing-api/db"
 	"github.com/aprimr/event-ticketing-api/handlers"
@@ -40,6 +41,22 @@ func main() {
 	})
 
 	mux.HandleFunc("/events/", func(w http.ResponseWriter, r *http.Request) {
+		path := r.URL.Path
+
+		// /events/:id/bookings
+		if strings.HasSuffix(path, "/bookings") {
+			switch r.Method {
+			// POST /events/:id/bookings (create bookings)
+			case http.MethodPost:
+				handlers.AddBookingHandler(w, r)
+
+			// Handle default case
+			default:
+				utils.SendErrorResposnse(w, "Method not allowed", http.StatusMethodNotAllowed)
+			}
+			return
+		}
+
 		switch r.Method {
 		// GET /events/:id (fetch event by id)
 		case http.MethodGet:
