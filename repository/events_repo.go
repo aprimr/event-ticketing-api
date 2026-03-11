@@ -7,6 +7,7 @@ import (
 
 	"github.com/aprimr/event-ticketing-api/db"
 	"github.com/aprimr/event-ticketing-api/models"
+	"github.com/jackc/pgx/v5"
 )
 
 func AddEvent(ctx context.Context, event models.Event) error {
@@ -78,4 +79,16 @@ func FetchEvents(ctx context.Context, page int, limit int, category string, even
 	}
 
 	return &paginaginatedEvents, nil
+}
+
+func FetchEventById(ctx context.Context, id int) (*models.Event, error) {
+	event := models.Event{}
+
+	// Query db
+	row := db.Pool.QueryRow(ctx, "SELECT id, title, description, location, category, capacity, price, event_date, created_at FROM events WHERE id=$1", id)
+	err := row.Scan(&event.Id, &event.Title, &event.Description, &event.Location, &event.Category, &event.Capacity, &event.Price, &event.EventDate, &event.CreatedAt)
+	if err == pgx.ErrNoRows {
+		return nil, fmt.Errorf("No rows with the provided id matched")
+	}
+	return &event, nil
 }

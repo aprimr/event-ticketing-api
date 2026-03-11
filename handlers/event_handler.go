@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/aprimr/event-ticketing-api/models"
@@ -86,4 +87,25 @@ func FetchEventsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	utils.SendSuccessResposnse(w, "Events fetched successfully", events, http.StatusOK)
+}
+
+func FetchEventByIdHandler(w http.ResponseWriter, r *http.Request) {
+	// Parse URL
+	idStr := strings.TrimPrefix(r.URL.Path, "/events/")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		log.Printf("FetchEventByIdHandler -> bad request: %v \n", err)
+		utils.SendErrorResposnse(w, "Event ID must be a number", http.StatusBadRequest)
+		return
+	}
+
+	// Call FetchEventById
+	event, err := repository.FetchEventById(r.Context(), id)
+	if err != nil {
+		log.Printf("FetchEventByIdHandler -> db error: %v \n", err)
+		utils.SendErrorResposnse(w, "Event not found", http.StatusBadRequest)
+		return
+	}
+
+	utils.SendSuccessResposnse(w, "Event fetched successfully", event, http.StatusOK)
 }

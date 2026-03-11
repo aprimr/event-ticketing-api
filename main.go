@@ -39,6 +39,18 @@ func main() {
 		}
 	})
 
+	mux.HandleFunc("/events/", func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		// GET //:id (fetch event by id)
+		case http.MethodGet:
+			handlers.FetchEventByIdHandler(w, r)
+
+		// Handle default case
+		default:
+			utils.SendErrorResposnse(w, "Method not allowed", http.StatusMethodNotAllowed)
+		}
+	})
+
 	// SpinUp server
 	port := ":" + os.Getenv("PORT")
 	log.Println("Server started on port", port)
