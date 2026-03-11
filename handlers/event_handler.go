@@ -64,6 +64,8 @@ func FetchEventsHandler(w http.ResponseWriter, r *http.Request) {
 	// Parse URL query
 	page := utils.ParseQueryInt(r, "page", 1)
 	limit := utils.ParseQueryInt(r, "limit", 10)
+	category := utils.ParseQueryString(r, "category", "")
+	date := utils.ParseQueryString(r, "date", "")
 
 	// Validate
 	if page <= 0 {
@@ -76,7 +78,7 @@ func FetchEventsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Call FetchEvents
-	events, err := repository.FetchEvents(r.Context(), page, limit)
+	events, err := repository.FetchEvents(r.Context(), page, limit, category, date)
 	if err != nil {
 		log.Printf("FetchEventHandler -> db error: %v \n", err)
 		utils.SendErrorResposnse(w, "Error fetching events", http.StatusInternalServerError)

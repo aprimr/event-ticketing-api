@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"fmt"
 	"math"
 
 	"github.com/aprimr/event-ticketing-api/db"
@@ -13,7 +14,7 @@ func AddEvent(ctx context.Context, event models.Event) error {
 	return err
 }
 
-func FetchEvents(ctx context.Context, page int, limit int) (*models.PaginatedEvent, error) {
+func FetchEvents(ctx context.Context, page int, limit int, category string, event_date string) (*models.PaginatedEvent, error) {
 	// Calculate offset
 	offset := (page - 1) * limit
 
@@ -24,8 +25,29 @@ func FetchEvents(ctx context.Context, page int, limit int) (*models.PaginatedEve
 		return nil, err
 	}
 
+	// Base query
+	query := "SELECT id, title, description, location, category, capacity, price, event_date, created_at FROM events WHERE 1=1"
+	args := []any{}
+	argsCount := 1
+
+	// Add `category and date` filters if exists
+	if category != "" {
+		query += fmt.Sprintf(" AND category=$%d", argsCount)
+		args = append(args, category)
+		argsCount++
+	}
+	if event_date != "" {
+		query += fmt.Sprintf(" AND event_date=$%d", argsCount)
+		args = append(args, event_date)
+		argsCount++
+	}
+
+	// Add pagination at end
+	query += fmt.Sprintf(" ORDER BY id LIMIT $%d OFFSET $%d", argsCount, argsCount+1)
+	args = append(args, limit, offset)
+
 	// Query DB
-	rows, err := db.Pool.Query(ctx, "SELECT id, title, description, location, category, capacity, price, event_date, created_at FROM events ORDER BY id LIMIT $1 OFFSET $2", limit, offset)
+	rows, err := db.Pool.Query(ctx, query, args...)
 	if err != nil {
 		return nil, err
 	}
