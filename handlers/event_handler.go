@@ -115,7 +115,7 @@ func UpdateEventByIdHandler(w http.ResponseWriter, r *http.Request) {
 	idStr := strings.TrimPrefix(r.URL.Path, "/events/")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		log.Printf("UpdateEventHandler -> bad request: %v \n", err)
+		log.Printf("UpdateEventByIdHandler -> bad request: %v \n", err)
 		utils.SendErrorResposnse(w, "Event ID must be a number", http.StatusBadRequest)
 		return
 	}
@@ -124,7 +124,7 @@ func UpdateEventByIdHandler(w http.ResponseWriter, r *http.Request) {
 	updatedData := models.Event{}
 	err = json.NewDecoder(r.Body).Decode(&updatedData)
 	if err != nil {
-		log.Printf("UpdateEventHandler -> JSON error: %v \n", err)
+		log.Printf("UpdateEventByIdHandler -> JSON error: %v \n", err)
 		utils.SendErrorResposnse(w, "Invalid JSON", http.StatusBadRequest)
 		return
 	}
@@ -132,11 +132,36 @@ func UpdateEventByIdHandler(w http.ResponseWriter, r *http.Request) {
 	// Call UpdateEvent
 	updatedEvent, err := repository.UpdateEventById(r.Context(), id, updatedData)
 	if err != nil {
-		log.Printf("UpdateEventHandler -> db error: %v \n", err)
+		log.Printf("UpdateEventByIdHandler -> db error: %v \n", err)
 		utils.SendErrorResposnse(w, "Error updating event", http.StatusInternalServerError)
 		return
 	}
 
 	utils.SendSuccessResposnse(w, "Event updated successfully", updatedEvent, http.StatusOK)
 
+}
+
+func DeleteEventByIdHandler(w http.ResponseWriter, r *http.Request) {
+	// Parse URL
+	idStr := strings.TrimPrefix(r.URL.Path, "/events/")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		log.Printf("DeleteEventByIdHandler -> bad request: %v \n", err)
+		utils.SendErrorResposnse(w, "Event ID must be a number", http.StatusBadRequest)
+		return
+	}
+
+	// Call DeleteEventById
+	err = repository.DeleteEventById(r.Context(), id)
+	if err != nil {
+		log.Printf("DeleteEventByIdHandler -> db err: %v \n", err)
+		if err.Error() == "No events found" {
+			utils.SendErrorResposnse(w, "No event found", http.StatusNotFound)
+			return
+		}
+		utils.SendErrorResposnse(w, "Error deleting event", http.StatusInternalServerError)
+		return
+	}
+
+	utils.SendSuccessResposnse(w, "Event deleted successfully", nil, http.StatusOK)
 }

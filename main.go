@@ -49,6 +49,10 @@ func main() {
 		case http.MethodPut:
 			handlers.UpdateEventByIdHandler(w, r)
 
+		// DELETE /events/:id (delete event by id)
+		case http.MethodDelete:
+			handlers.DeleteEventByIdHandler(w, r)
+
 		// Handle default case
 		default:
 			utils.SendErrorResposnse(w, "Method not allowed", http.StatusMethodNotAllowed)

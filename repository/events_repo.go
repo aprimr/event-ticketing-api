@@ -88,7 +88,7 @@ func FetchEventById(ctx context.Context, id int) (*models.Event, error) {
 	row := db.Pool.QueryRow(ctx, "SELECT id, title, description, location, category, capacity, price, event_date, created_at FROM events WHERE id=$1", id)
 	err := row.Scan(&event.Id, &event.Title, &event.Description, &event.Location, &event.Category, &event.Capacity, &event.Price, &event.EventDate, &event.CreatedAt)
 	if err == pgx.ErrNoRows {
-		return nil, fmt.Errorf("No rows with the provided id matched")
+		return nil, fmt.Errorf("No events found")
 	}
 	return &event, nil
 }
@@ -100,10 +100,22 @@ func UpdateEventById(ctx context.Context, id int, event models.Event) (*models.E
 	row := db.Pool.QueryRow(ctx, "UPDATE events SET title=$1, description=$2, location=$3, category=$4, capacity=$5, price=$6, event_date=$7 WHERE id=$8 RETURNING id, title, description, location, category, capacity, price, event_date, created_at", event.Title, event.Description, event.Location, event.Category, event.Capacity, event.Price, event.EventDate, id)
 	err := row.Scan(&updatedEvent.Id, &updatedEvent.Title, &updatedEvent.Description, &updatedEvent.Location, &updatedEvent.Category, &updatedEvent.Capacity, &updatedEvent.Price, &updatedEvent.EventDate, &updatedEvent.CreatedAt)
 	if err == pgx.ErrNoRows {
-		return nil, fmt.Errorf("No events matched with provided id")
+		return nil, fmt.Errorf("No events found")
 	}
 	if err != nil {
 		return nil, err
 	}
 	return &updatedEvent, nil
+}
+
+func DeleteEventById(ctx context.Context, id int) error {
+	commandTag, err := db.Pool.Exec(ctx, "DELETE FROM events WHERE id=$1", id)
+	if err != nil {
+		return err
+	}
+	if commandTag.RowsAffected() == 0 {
+		return fmt.Errorf("No events found")
+	}
+
+	return nil
 }
