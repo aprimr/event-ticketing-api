@@ -64,3 +64,25 @@ func AddBookingHandler(w http.ResponseWriter, r *http.Request) {
 
 	utils.SendSuccessResposnse(w, "Booking created", nil, http.StatusCreated)
 }
+
+func GetAllBookingsByEventIdHandler(w http.ResponseWriter, r *http.Request) {
+	// Parse URL
+	urlStr := strings.TrimPrefix(r.URL.Path, "/events/")
+	idStr := strings.TrimSuffix(urlStr, "/bookings")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		log.Printf("GetAllBookingsByEventIdHandler -> bad request: %v \n", err)
+		utils.SendErrorResposnse(w, "Event ID must be a number", http.StatusBadRequest)
+		return
+	}
+
+	// Call GetBookingById
+	bookings, err := repository.GetAllBookingsByEventId(r.Context(), id)
+	if err != nil {
+		log.Printf("GetAllBookingsByEventIdHandler -> db error: %v \n", err)
+		utils.SendErrorResposnse(w, "Error fetching bookings", http.StatusInternalServerError)
+		return
+	}
+
+	utils.SendSuccessResposnse(w, "Booking fetch successful", bookings, http.StatusOK)
+}

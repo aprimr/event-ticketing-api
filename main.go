@@ -50,6 +50,10 @@ func main() {
 			case http.MethodPost:
 				handlers.AddBookingHandler(w, r)
 
+				// GET /events/:id/bookings (create bookings)
+			case http.MethodGet:
+				handlers.GetAllBookingsByEventIdandler(w, r)
+
 			// Handle default case
 			default:
 				utils.SendErrorResposnse(w, "Method not allowed", http.StatusMethodNotAllowed)

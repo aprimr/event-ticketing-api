@@ -47,3 +47,24 @@ func AddBooking(ctx context.Context, event_id int, booking models.Booking) error
 
 	return nil
 }
+
+func GetAllBookingsByEventId(ctx context.Context, EventId int) (*[]models.Booking, error) {
+	rows, err := db.Pool.Query(ctx, "SELECT id, event_id, name, email, seats, created_at FROM bookings WHERE event_id=$1", EventId)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	// Scan each row
+	bookings := []models.Booking{}
+	for rows.Next() {
+		booking := models.Booking{}
+		err = rows.Scan(&booking.Id, &booking.EventId, &booking.Name, &booking.Email, &booking.Seats, &booking.CreatedAt)
+		if err != nil {
+			return nil, err
+		}
+		bookings = append(bookings, booking)
+	}
+
+	return &bookings, nil
+}
