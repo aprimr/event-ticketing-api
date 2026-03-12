@@ -52,7 +52,7 @@ func main() {
 
 				// GET /events/:id/bookings (create bookings)
 			case http.MethodGet:
-				handlers.GetAllBookingsByEventIdandler(w, r)
+				handlers.GetAllBookingsByEventIdHandler(w, r)
 
 			// Handle default case
 			default:
