@@ -86,3 +86,33 @@ func GetAllBookingsByEventIdHandler(w http.ResponseWriter, r *http.Request) {
 
 	utils.SendSuccessResposnse(w, "Booking fetch successful", bookings, http.StatusOK)
 }
+
+func DeleteBookingByEventIdAndBookingIdHandler(w http.ResponseWriter, r *http.Request) {
+	// Parse URL
+	urlStr := strings.TrimPrefix(r.URL.Path, "/events/")
+	parts := strings.Split(urlStr, "/")
+	eventId, err := strconv.Atoi(parts[0])
+	if err != nil {
+		utils.SendErrorResposnse(w, "Event ID must be a number", http.StatusBadRequest)
+		return
+	}
+	bookingId, err := strconv.Atoi(parts[2])
+	if err != nil {
+		utils.SendErrorResposnse(w, "Booking ID must be a number", http.StatusBadRequest)
+		return
+	}
+
+	// Call DeleteBookingByEventIdAndBookingId
+	err = repository.DeleteBookingByEventIdAndBookingId(r.Context(), eventId, bookingId)
+	if err != nil {
+		log.Printf("DeleteBookingByEventIdAndBookingIdHandler -> db error: %v \n", err)
+		if err.Error() == "Booking not found" {
+			utils.SendErrorResposnse(w, "Booking not found", http.StatusNotFound)
+			return
+		}
+		utils.SendErrorResposnse(w, "Error deleting bookings", http.StatusInternalServerError)
+		return
+	}
+
+	utils.SendSuccessResposnse(w, "Booking deleted successfully", nil, http.StatusOK)
+}

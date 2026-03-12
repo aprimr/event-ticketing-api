@@ -68,3 +68,14 @@ func GetAllBookingsByEventId(ctx context.Context, EventId int) (*[]models.Bookin
 
 	return &bookings, nil
 }
+
+func DeleteBookingByEventIdAndBookingId(ctx context.Context, eventId int, bookingId int) error {
+	commandTag, err := db.Pool.Exec(ctx, "DELETE FROM bookings WHERE id=$1 AND event_id=$2", bookingId, eventId)
+	if err != nil {
+		return err
+	}
+	if commandTag.RowsAffected() == 0 {
+		return fmt.Errorf("Booking not found")
+	}
+	return nil
+}

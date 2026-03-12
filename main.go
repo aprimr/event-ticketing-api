@@ -43,6 +43,18 @@ func main() {
 	mux.HandleFunc("/events/", func(w http.ResponseWriter, r *http.Request) {
 		path := r.URL.Path
 
+		// /events/:id/bookings/:bid
+		if strings.Contains(path, "/bookings/") {
+			switch r.Method {
+			// DELETE /events/:id/bookings/:bid (Delete bookings by booking id)
+			case http.MethodDelete:
+				handlers.DeleteBookingByEventIdAndBookingIdHandler(w, r)
+			default:
+				utils.SendErrorResposnse(w, "Method not allowed", http.StatusMethodNotAllowed)
+			}
+			return
+		}
+
 		// /events/:id/bookings
 		if strings.HasSuffix(path, "/bookings") {
 			switch r.Method {
@@ -50,7 +62,7 @@ func main() {
 			case http.MethodPost:
 				handlers.AddBookingHandler(w, r)
 
-				// GET /events/:id/bookings (create bookings)
+			// GET /events/:id/bookings (create bookings)
 			case http.MethodGet:
 				handlers.GetAllBookingsByEventIdHandler(w, r)
 
